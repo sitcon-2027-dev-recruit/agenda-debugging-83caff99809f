@@ -1,6 +1,7 @@
 import React from "react";
 import data from "@/public/sessions.json";
 import SessionCard from "@/app/(website)/(pages)/_components/SessionCard";
+import timeRender from "@/app/(website)/_utils/time-render";
 
 const styleToText = (time: string) => {
   // input time format: "t0830"
@@ -21,21 +22,13 @@ export default function DesktopAgenda() {
   }, "[start] auto");
   // start R0 R1 R2 R3 S
 
-  function parseTime(time: Date) {
-    return time.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
-  }
-
+  // 議程時間一律以台北時區呈現，才能和 SessionCard 產生的 grid row 名稱對得起來
   const times = data.sessions
     .map((session) => [session.start, session.end])
     .flat(1)
     .filter((item) => item !== null)
-    .map((item) => new Date(item))
-    .sort()
-    .map((item) => parseTime(item))
+    .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+    .map((item) => timeRender(item))
     .filter((item, index, self) => self.indexOf(item) === index)
     .map((item, index) => ({ id: `t${item.replace(":", "")}`, index }));
 
@@ -79,7 +72,7 @@ export default function DesktopAgenda() {
           className="h-[1px] w-full py-3"
           style={{
             gridColumn: "start / end",
-            gridRow: "divider / t0830",
+            gridRow: `divider / ${times[0]?.id ?? "end"}`,
           }}
         />
 

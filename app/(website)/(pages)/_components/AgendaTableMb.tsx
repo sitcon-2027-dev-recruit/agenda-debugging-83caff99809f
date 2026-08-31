@@ -35,9 +35,8 @@ export default function MobileAgenda() {
     .map((session) => [session.start, session.end])
     .flat(1)
     .filter((item) => item !== null)
-    .map((item) => new Date(item))
-    .sort()
-    .map((item) => parseTime(item))
+    .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+    .map((item) => parseTime(new Date(item)))
     .filter((item, index, self) => self.indexOf(item) === index);
 
   const styleToText = (time: string) => {
